@@ -28,7 +28,7 @@ const autoscroll=()=>{
     //where we are now
     const scrollOffSet=$messages.scrollTop+visibleHeight
 
-    //logic
+    //logic for autoscroll
     if(containerHeight-newMessageHeight<=scrollOffSet){
         $messages.scrollTop=$messages.scrollHeight
     }
@@ -37,10 +37,10 @@ const autoscroll=()=>{
 //recieving data on client side
 socket.on('message',(message)=>{
     console.log(message);
-    const html=Mustache.render(messageTemplate,{
+    const html=Mustache.render(messageTemplate,{    //rendering template using mustache template
         username:message.username,
         message:message.text,
-        createdAt:moment(message.createdAt).format('h:mm a')
+        createdAt:moment(message.createdAt).format('h:mm a')    //using moment script to make timestamp more understandable    
     });
     $messages.insertAdjacentHTML('beforeend',html);
     autoscroll();
@@ -57,6 +57,7 @@ socket.on('locationMessage',(message)=>{
     autoscroll();
 });
 
+//update sidebar on client side
 socket.on('roomData',({room,users})=>{
     const html=Mustache.render(sidebarTemplate,{
         room,

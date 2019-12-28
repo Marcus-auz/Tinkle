@@ -18,7 +18,7 @@ app.use(express.static(publicDirectoryPath));
 //on new connection
 io.on('connection',(socket)=>{
     console.log('New connection');
-
+    //when join is used
     socket.on('join',(options,cb)=>{
         const {error,user}=addUser({id:socket.id,...options})
         if(error){
@@ -30,6 +30,7 @@ io.on('connection',(socket)=>{
         socket.emit('messgae',generateMessage('Admin','Welcome'));
         //sending it to every connection except itself
         socket.broadcast.to(user.room).emit('message',generateMessage('Admin',`${user.username} has joined`));
+        //send all users to roomData on client side which then render using that data
         io.to(user.room).emit('roomData',{
             room:user.room,
             users:getUsersInRoom(user.room)
@@ -42,15 +43,15 @@ io.on('connection',(socket)=>{
     socket.on('sendMessage',(message,cb)=>{
         const user=getUser(socket.id)
         const filter=new Filter();
-
+        //filter used for foul words
         if(filter.isProfane(message)){
             return cb('Warning for abusive content');
         }
-
-        io.to(user.room).emit('message',generateMessage(user.username,message)); //emitting message event with message data to every connection
+        //emitting message event with message data to every connection
+        io.to(user.room).emit('message',generateMessage(user.username,message)); 
         cb();
     });
-
+    //on send location 
     socket.on('sendLocation',(coords,cb)=>{
         const user=getUser(socket.id)
         io.to(user.room).emit('locationMessage',generateLocationMessage(user.username,`https://google.com/maps?q=${coords.latitude}, ${coords.longitude}`));
