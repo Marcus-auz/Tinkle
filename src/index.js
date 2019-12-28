@@ -1,5 +1,6 @@
 const path=require('path');
 const http=require('http');
+const Filter=require('bad-words');
 const express=require('express');
 const socketio=require('socket.io');
 const app=express();
@@ -21,12 +22,19 @@ io.on('connection',(socket)=>{
     //sending it to every connection except itself
     socket.broadcast.emit('message','New user connected');
     //when receiving data
-    socket.on('sendMessage',(message)=>{
+    socket.on('sendMessage',(message,cb)=>{
+        const filter=new Filter();
+        if(filter.isProfane(message)){
+            return cb('Warning for abusive content');
+        }
+
         io.emit('message',message); //emitting message event with message data to every connection
+        cb();
     });
 
-    socket.on('sendLocation',(coords)=>{
+    socket.on('sendLocation',(coords,cb)=>{
         io.emit('message',`https://google.com/maps?q=${coords.latitude}, ${coords.longitude}`);
+        cb();
     });
     //when user disconnects 
     socket.on('disconnect',()=>{
