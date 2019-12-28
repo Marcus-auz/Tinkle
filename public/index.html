@@ -1,26 +1,47 @@
 <!DOCTYPE html>
 <html>
     <head>
-
+        <title>Tinkle</title>
+        <link rel="icon" href="img/favicon.png">
+        <link rel="stylesheet" href="css/styles.min.css">
     </head>
     <body>
-        Tinkle
+        <div class="chat">
+            <div class="chat__sidebar">
 
-        <div id="messages"></div>
-        <form id="message-form">
-            <input name="message" placeholder="Message">
-            <button>Send</button>
-        </form>
-        <button id="send-location">Send Location</button>
+            </div>
+            <div class="chat__main">
+                    <div id="messages" class="caht__messages"></div>
+                    
+                    <div class="compose">
+
+                        <form id="message-form">
+                            <input name="message" placeholder="Message">
+                            <button>Send</button>
+                        </form>
+                        <button id="send-location">Send Location</button>
+                    </div>
+            </div>
+        </div>
+
+        
         <script id="message-template" type="text/html">
-            <div>
-                <p>{{createdAt}} - {{message}} </p>
+            <div class="message">
+                <p>
+                    <span class="message__name">Username</span>
+                    <span class="message__meta">{{createdAt}}</span>
+                </p>                
+                <p>{{message}} </p>
             </div>
         </script>
 
         <script id="location-message-template" type="text/html">
-            <div>
-                <p>{{createdAt}} - <a href="{{url}}" target="_blank">My Location</p>
+            <div class="message">
+                <p>
+                    <span class="message__name">Username</span>
+                    <span class="message__meta">{{createdAt}}</span>
+                </p>
+                <p><a href="{{url}}" target="_blank">My Location</p>
             </div>
         </script>
 
