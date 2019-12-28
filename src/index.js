@@ -16,11 +16,17 @@ app.use(express.static(publicDirectoryPath));
 io.on('connection',(socket)=>{
     console.log('New connection');
   
-    //server sending message
+    //emit message to that particular connection
     socket.emit('messgae','Welcome');
+    //sending it to every connection except itself
+    socket.broadcast.emit('message','New user connected');
     //when receiving data
     socket.on('sendMessage',(message)=>{
-        io.emit('message',message); //emitting message event with message data
+        io.emit('message',message); //emitting message event with message data to every connection
+    });
+
+    socket.on('disconnect',()=>{
+        io.emit('message','User left'); //not using broadcast since that user has already disconnected
     });
 });
 server.listen(port,()=>{
