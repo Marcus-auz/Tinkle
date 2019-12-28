@@ -2,6 +2,7 @@ const path=require('path');
 const http=require('http');
 const Filter=require('bad-words');
 const {generateMessage,generateLocationMessage}=require('./utils/messages');
+const {addUser,removeUser,getUser,getUsersInRoom}=require('./utils/users');
 const express=require('express');
 const socketio=require('socket.io');
 const app=express();
@@ -17,11 +18,21 @@ app.use(express.static(publicDirectoryPath));
 //on new connection
 io.on('connection',(socket)=>{
     console.log('New connection');
-  
-    //emit message to that particular connection
-    socket.emit('messgae',generateMessage('Welcome'));
-    //sending it to every connection except itself
-    socket.broadcast.emit('message',generateMessage('New user connected'));
+
+    socket.on('join',(options,cb)=>{
+        const {error,user}=addUser({id:socket.id,...options})
+        if(error){
+            return cb(error)
+        }
+        socket.join(user.room);
+
+        //emit message to that particular connection
+        socket.emit('messgae',generateMessage('Welcome'));
+        //sending it to every connection except itself
+        socket.broadcast.to(user.room).emit('message',generateMessage(`${user.username} has joined`));
+        cb() //without an error
+    }); 
+    
     //when receiving data
     socket.on('sendMessage',(message,cb)=>{
         const filter=new Filter();
@@ -39,7 +50,11 @@ io.on('connection',(socket)=>{
     });
     //when user disconnects 
     socket.on('disconnect',()=>{
-        io.emit('message',generateMessage('User left')); //not using broadcast since that user has already disconnected
+        const user=removeUser(socket.id)
+        if(user){
+            io.to(user.room).emit('message',generateMessage(`${user.username} has left`)); //not using broadcast since that user has already disconnected
+        }
+
     });
 });
 server.listen(port,()=>{
