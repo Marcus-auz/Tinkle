@@ -1,6 +1,7 @@
 const path=require('path');
 const http=require('http');
 const Filter=require('bad-words');
+const {generateMessage,generateLocationMessage}=require('./utils/messages');
 const express=require('express');
 const socketio=require('socket.io');
 const app=express();
@@ -18,9 +19,9 @@ io.on('connection',(socket)=>{
     console.log('New connection');
   
     //emit message to that particular connection
-    socket.emit('messgae','Welcome');
+    socket.emit('messgae',generateMessage('Welcome'));
     //sending it to every connection except itself
-    socket.broadcast.emit('message','New user connected');
+    socket.broadcast.emit('message',generateMessage('New user connected'));
     //when receiving data
     socket.on('sendMessage',(message,cb)=>{
         const filter=new Filter();
@@ -28,17 +29,17 @@ io.on('connection',(socket)=>{
             return cb('Warning for abusive content');
         }
 
-        io.emit('message',message); //emitting message event with message data to every connection
+        io.emit('message',generateMessage(message)); //emitting message event with message data to every connection
         cb();
     });
 
     socket.on('sendLocation',(coords,cb)=>{
-        io.emit('locationMessage',`https://google.com/maps?q=${coords.latitude}, ${coords.longitude}`);
+        io.emit('locationMessage',generateLocationMessage(`https://google.com/maps?q=${coords.latitude}, ${coords.longitude}`));
         cb();
     });
     //when user disconnects 
     socket.on('disconnect',()=>{
-        io.emit('message','User left'); //not using broadcast since that user has already disconnected
+        io.emit('message',generateMessage('User left')); //not using broadcast since that user has already disconnected
     });
 });
 server.listen(port,()=>{
