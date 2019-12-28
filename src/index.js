@@ -25,6 +25,10 @@ io.on('connection',(socket)=>{
         io.emit('message',message); //emitting message event with message data to every connection
     });
 
+    socket.on('sendLocation',(coords)=>{
+        io.emit('message',`https://google.com/maps?q=${coords.latitude}, ${coords.longitude}`);
+    });
+    //when user disconnects 
     socket.on('disconnect',()=>{
         io.emit('message','User left'); //not using broadcast since that user has already disconnected
     });
